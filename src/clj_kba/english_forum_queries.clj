@@ -1,6 +1,8 @@
 (ns clj-kba.english-forum-queries
   "Generate queries for the indri index"
-  (:require [clj-kba.core :as core]
+  (:gen-class :main true)
+  (:require [byte-streams :refer :all]
+            [clj-kba.core :as core]
             [clj-kba.english-forum-hosts :as englisher]
             [clojure.java.io :as io]
             [clojure.string :as string])
@@ -11,12 +13,12 @@
   [a-string]
   (let [ptbt (-> a-string
                  (java.io.StringReader.)
-                 (PTBTokenizer.))]
+                 (PTBTokenizer. (CoreLabelTokenFactory.) ""))]
     (take-while
      identity
      (repeatedly (fn []
                    (if (.hasNext ptbt)
-                     (.next ptbt)
+                     (-> ptbt (.next) (.toString))
                      nil))))))
 
 (defn string-tokens-no-punct
@@ -24,7 +26,8 @@
   (filter
    (fn [x]
      (not
-      (re-find #"\p{Punct}" x)))
+      (try (re-find #"\p{Punct}" x)
+           (catch Exception e nil))))
    (string-tokens a-string)))
 
 (defn cleaned-english-bodies
@@ -45,20 +48,20 @@
    (map
     (fn [{body :body}]
       (-> body
+          (convert String)
           collapse-html-tags
           tokenize-and-lowercase))
     (englisher/english-only-non-4chan-forum-items a-file))))
 
 (defn cleaned-english-bodies-directory
   [a-directory file-to-dump]
-  (doseq [social-files (core/corpus-social-files a-directory)]
-    (let [wrtr (io/writer file-to-dump :append true)]
-      (fn [a-file]
-        (let [bodies (cleaned-english-bodies a-file)]
-          (doseq [body bodies]
-            (binding [*out* wrtr]
-              (println body)
-              (flush))))))))
+  (doseq [a-file (core/corpus-social-files a-directory)]
+    (let [wrtr (io/writer file-to-dump :append true)
+          bodies (cleaned-english-bodies a-file)]
+      (doseq [body bodies]
+        (binding [*out* wrtr]
+          (println body)
+          (flush))))))
 
 (defn cleaned-english-bodies-corpus
   "Supply a text file containing a list
