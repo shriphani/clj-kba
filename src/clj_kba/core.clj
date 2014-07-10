@@ -42,20 +42,6 @@
                              parse-string
                              keywordize-keys)]
     {:meta source-meta-data
-     :body (convert (.raw body)
-                    String)}))
-
-(defn stream-item-obj->map-bytes
-  "A stream item is equipped with bytes which when
-   read are lost. We fix that by building a map"
-  [a-stream-item]
-  (let [body (convert (.body a-stream-item)
-                      ContentItem)
-        source-meta-data (-> (.source_metadata a-stream-item)
-                             (convert String)
-                             parse-string
-                             keywordize-keys)]
-    {:meta source-meta-data
      :body (.raw body)}))
 
 (defn stream-items-seq
@@ -69,17 +55,6 @@
                      (stream-item-obj->map a-stream-item))
                  (catch TTransportException e nil))))))))
 
-(defn stream-items-seq-bytes
-  [a-protocol]
-  (take-while
-   identity
-   (repeatedly
-    (fn []
-      (let [a-stream-item (StreamItem.)]
-        (do (try (do (.read a-stream-item a-protocol)
-                     (stream-item-obj->map-bytes a-stream-item))
-                 (catch TTransportException e nil))))))))
-
 (defn read-file
   "Reads the KBA streamcorpus file
    builds a metadata and body map"
@@ -91,7 +66,7 @@
         
         protocol  (TBinaryProtocol. transport)]
     (do (.open transport)
-        (stream-items-seq-bytes protocol))))
+        (stream-items-seq protocol))))
 
 (defn forum-items
   [a-file]
