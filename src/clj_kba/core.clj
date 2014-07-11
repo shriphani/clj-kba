@@ -85,10 +85,11 @@
     (filter
      (fn [item]
        (not
-        (re-find #"4chan"
-                 (-> item
-                     :meta
-                     :home_link))))
+        (try (re-find #"4chan"
+                      (-> item
+                          :meta
+                          :home_link))
+             (catch Exception e false))))
      items)))
 
 (defn most-recent-body-host-name

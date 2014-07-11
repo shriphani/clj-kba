@@ -30,28 +30,42 @@
            (catch Exception e nil))))
    (string-tokens a-string)))
 
+(defn try-to-convert
+  [bytes result-type filename]
+  "This is so we skip over the offending segments
+   in the KBA corpus. log the buggy types for later maybe"
+  (try (convert bytes result-type)
+       (catch Exception e (do (println :problem-reading-bytes filename)
+                              nil))))
+
 (defn cleaned-english-bodies
   "Retrieves cleaned english bodies from a file"
   [a-file]
   (let [collapse-html-tags (fn [a-string]
-                             (string/replace a-string
-                                             #"<.*>"
-                                             " "))
+                             (if-not (nil? a-string)
+                               (string/replace a-string
+                                               #"<.*>"
+                                               " ")
+                               nil))
         ;; is this even necessary
         ;; can see perf so let us do it anyway
         tokenize-and-lowercase (fn [a-string]
-                                 (string/join
-                                  " "
-                                  (map
-                                   string/lower-case
-                                   (string-tokens-no-punct a-string))))]
-   (map
-    (fn [{body :body}]
-      (-> body
-          (convert String)
-          collapse-html-tags
-          tokenize-and-lowercase))
-    (englisher/english-only-non-4chan-forum-items a-file))))
+                                 (if-not (nil? a-string)
+                                   (string/join
+                                    " "
+                                    (map
+                                     string/lower-case
+                                     (string-tokens-no-punct a-string)))
+                                   nil))]
+    (filter
+     identity
+     (map
+      (fn [{body :body}]
+        (-> body
+            (try-to-convert String a-file)
+            collapse-html-tags
+            tokenize-and-lowercase))
+      (englisher/english-only-non-4chan-forum-items a-file)))))
 
 (defn cleaned-english-bodies-directory
   [a-directory file-to-dump]
@@ -61,7 +75,8 @@
       (doseq [body bodies]
         (binding [*out* wrtr]
           (println body)
-          (flush))))))
+          (flush)))
+      (.close wrtr))))
 
 (defn cleaned-english-bodies-corpus
   "Supply a text file containing a list
