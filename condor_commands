@@ -1,0 +1,8 @@
+nohup condor_run "lein run /bos/tmp19/spalakod/clueweb12pp/kba/kba_directories_list_aa" &
+nohup condor_run "lein run /bos/tmp19/spalakod/clueweb12pp/kba/kba_directories_list_ab" &
+nohup condor_run "lein run /bos/tmp19/spalakod/clueweb12pp/kba/kba_directories_list_ac" &
+nohup condor_run "lein run /bos/tmp19/spalakod/clueweb12pp/kba/kba_directories_list_ad" &
+nohup condor_run "lein run /bos/tmp19/spalakod/clueweb12pp/kba/kba_directories_list_ae" &
+nohup condor_run "lein run /bos/tmp19/spalakod/clueweb12pp/kba/kba_directories_list_af" &
+nohup condor_run "lein run /bos/tmp19/spalakod/clueweb12pp/kba/kba_directories_list_ag" &
+nohup condor_run "lein run /bos/tmp19/spalakod/clueweb12pp/kba/kba_directories_list_ah" &
