@@ -3,7 +3,7 @@
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[byte-streams "0.1.11"]
+  :dependencies [[byte-streams "0.1.13"]
                  [ch.qos.logback/logback-classic "1.0.13"]
                  [cheshire "5.3.1"]
                  [edu.stanford.nlp/stanford-parser "3.3.1"]
