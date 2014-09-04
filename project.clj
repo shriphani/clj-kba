@@ -13,4 +13,4 @@
                  [org.clojure/tools.cli "0.3.1"]]
   :java-source-paths ["src/gen-java"]
   :jvm-opts ["-Xmx10g"]
-  :main clj-kba.english-forum-queries)
+  :main clj-kba.uri-index-names)
